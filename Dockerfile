@@ -23,5 +23,5 @@ FROM scratch
 EXPOSE 8090
 
 COPY --from=downloader /pocketbase /usr/local/bin/pocketbase
-RUN cd /client && yarn build
+
 CMD ["/usr/local/bin/pocketbase", "serve", "--http=0.0.0.0:8090"]
