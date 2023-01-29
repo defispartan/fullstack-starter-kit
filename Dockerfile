@@ -1,27 +1,28 @@
-FROM alpine:3 as downloader
+FROM alpine:latest
 
-ARG TARGETOS
-ARG TARGETARCH
-ARG VERSION=0.2.8
+ARG PB_VERSION=0.7.7
 
-ENV BUILDX_ARCH="${TARGETOS:-linux}_${TARGETARCH:-amd64}"
-
-# Install the dependencies
 RUN apk add --no-cache \
-    ca-certificates \
     unzip \
-    wget \
-    zip \
-    zlib-dev
+    # this is needed only if you want to use scp to copy later your pb_data locally
+    openssh
 
-RUN wget https://github.com/pocketbase/pocketbase/releases/download/v${VERSION}/pocketbase_${VERSION}_${BUILDX_ARCH}.zip \
-    && unzip pocketbase_${VERSION}_${BUILDX_ARCH}.zip \
-    && chmod +x /pocketbase
+# download and unzip PocketBase
+ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
+RUN unzip /tmp/pb.zip -d /pb/
 
-FROM scratch
+RUN apk add --no-cache nodejs yarn
 
 EXPOSE 8090
 
-COPY --from=downloader /pocketbase /usr/local/bin/pocketbase
+WORKDIR /pb
+COPY client /pb/client
 
-CMD ["/usr/local/bin/pocketbase", "serve", "--http=0.0.0.0:8090"]
+WORKDIR /pb/client
+RUN yarn install
+# Build vite app into PocketBase webserver directory
+RUN yarn build --outDir='/pb/pb_public'
+
+
+# start PocketBase
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8090"]
