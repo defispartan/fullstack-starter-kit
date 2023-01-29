@@ -1,0 +1,12 @@
+{
+  "name": "fullstack-starter-kit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "install": "cd ./client && yarn install",
+    "build": "cd ./client && yarn build",
+    "dev": "cd ./client && yarn dev && ./pocketbase",
+    "dev:static": "yarn build && ./pocketbase serve"
+  }
+}
