@@ -1,5 +1,6 @@
 .DS_Store
 /pb_data
+/pb_public
 
 # Logs
 logs
